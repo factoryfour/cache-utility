@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StorageUtility should persist long term tier over short term tier 1`] = `
+Object {
+  "hello": "321",
+}
+`;
+
+exports[`StorageUtility should persist long term tier over short term tier after get 1`] = `
+Object {
+  "hello": "321",
+}
+`;
+
+exports[`StorageUtility should persist long term tier over short term tier after set 1`] = `
+LocalStorage {
+  "C-B-test": "{\\"hello\\":\\"321\\"}",
+  "C-test": "{\\"hello\\":\\"456\\"}",
+}
+`;
+
+exports[`StorageUtility should properly get a value in target 1`] = `
+Object {
+  "hello": "123",
+}
+`;
+
+exports[`StorageUtility should properly initialize tierMap 1`] = `
+Object {
+  "A": Object {
+    "expiration": 500,
+    "key": "C-B-A",
+  },
+  "B": Object {
+    "expiration": 1000,
+    "key": "C-B",
+  },
+  "C": Object {
+    "expiration": 1500,
+    "key": "C",
+  },
+}
+`;
+
+exports[`StorageUtility should properly set a value in target 1`] = `"{\\"hello\\":\\"123\\"}"`;
