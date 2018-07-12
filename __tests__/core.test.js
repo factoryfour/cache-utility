@@ -30,6 +30,8 @@ describe('StorageUtility', () => {
 		sessionStorage.removeItem.mockClear();
 		// Reset the ExampleUtility
 		ExampleUtility = new StorageUtility(config);
+		// Make console.error a mock
+		console.error = jest.fn();
 	});
 
 	it('should properly initialize tierMap', () => {
@@ -40,7 +42,8 @@ describe('StorageUtility', () => {
 		const testValue = { hello: '123' };
 		expect(localStorage.length).toBe(0);
 		expect(sessionStorage.length).toBe(0);
-		ExampleUtility.set('test', testValue, 'A');
+		const result = ExampleUtility.set('test', testValue, 'A');
+		expect(result).toBe(true);
 		expect(localStorage.length).toBe(0);
 		expect(sessionStorage.length).toBe(1);
 		expect(sessionStorage.setItem).toHaveBeenCalledWith('C-B-A-test', JSON.stringify(testValue));
@@ -55,6 +58,20 @@ describe('StorageUtility', () => {
 	});
 
 	it('should return null when getting from an invalid tier', () => {
+		const testValue = { hello: '123' };
+		ExampleUtility.set('test', testValue, 'A');
+		const result = ExampleUtility.get('test', 'D');
+		expect(result).toBe(null);
+		expect(console.error).toHaveBeenCalledWith('Tier D does not exist'); // Should alert the user
+	});
+
+	it('should return null when setting to an invalid tier', () => {
+		const result = ExampleUtility.set('test', { hello: '123' }, 'E');
+		expect(result).toBe(null);
+		expect(console.error).toHaveBeenCalledWith('Tier E does not exist'); // Should alert the user
+	});
+
+	it('should return null if getting a key that doesn\'t exist in store', () => {
 		const testValue = { hello: '123' };
 		ExampleUtility.set('test', testValue, 'A');
 		const result = ExampleUtility.get('test', 'B');
