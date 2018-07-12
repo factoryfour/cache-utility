@@ -46,10 +46,10 @@ const config = {
 const utility = new storageUtility(config);
 
 /** To put values in storage, use set */
-utility('myKey', { myValue: 1 }, 'Tier-1');
+utility.set('myKey', { myValue: 1 }, 'Tier-1');
 
 /** To retreive value from storage, use get */
-const result = utility('myKey', 'Tier-1');
+const result = utility.get('myKey', 'Tier-1');
 ```
 The storageUtility instance will manage all invalidation of keys within the store.
 
