@@ -1,13 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`StorageUtility should persist long term tier over short term tier after get 1`] = `
-Object {
-  "hello": "321",
+exports[`StorageUtility should persist Tier C after Tiers A, B have expired 1`] = `
+LocalStorage {
+  "C-test": "{\\"hello\\":\\"456\\"}",
 }
 `;
 
-exports[`StorageUtility should persist long term tier over short term tier after set 1`] = `
+exports[`StorageUtility should persist Tiers B, C after Tier A has expired 1`] = `
 LocalStorage {
+  "C-B-test": "{\\"hello\\":\\"321\\"}",
+  "C-test": "{\\"hello\\":\\"456\\"}",
+}
+`;
+
+exports[`StorageUtility should persist all tiers if not enough inactivity 1`] = `
+LocalStorage {
+  "C-B-A-test": "{\\"hello\\":\\"123\\"}",
   "C-B-test": "{\\"hello\\":\\"321\\"}",
   "C-test": "{\\"hello\\":\\"456\\"}",
 }
@@ -37,3 +45,5 @@ Object {
 `;
 
 exports[`StorageUtility should properly set a value in target 1`] = `"{\\"hello\\":\\"123\\"}"`;
+
+exports[`StorageUtility should remove all tiers if enough inactivity 1`] = `LocalStorage {}`;

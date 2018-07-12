@@ -24,6 +24,11 @@ describe('StorageUtility', () => {
 	let ExampleUtility;
 
 	beforeEach(() => {
+		// Wipe session storage so we have a clean slate
+		sessionStorage.clear();
+		sessionStorage.setItem.mockClear();
+		sessionStorage.removeItem.mockClear();
+		// Reset the ExampleUtility
 		ExampleUtility = new StorageUtility(config);
 	});
 
@@ -68,29 +73,65 @@ describe('StorageUtility', () => {
 		}, 750);
 	});
 
-	it('should persist long term tier over short term tier after get', (done) => {
+	it('should persist all tiers if not enough inactivity', (done) => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
 		ExampleUtility.set('test', { hello: '321' }, 'B');
-		expect(sessionStorage.length).toBe(2);
+		ExampleUtility.set('test', { hello: '456' }, 'C');
+		expect(sessionStorage.length).toBe(3);
 		setTimeout(() => {
-			const result = ExampleUtility.get('test', 'B');
-			expect(result).toMatchSnapshot();
-			expect(sessionStorage.length).toBe(1);
+			const result = ExampleUtility.get('test', 'A');
+			expect(sessionStorage.length).toBe(3);
+			expect(result).not.toBe(null);
+			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
+			done();
+		}, 250);
+	});
+
+	it('should persist Tiers B, C after Tier A has expired', (done) => {
+		ExampleUtility.set('test', { hello: '123' }, 'A');
+		ExampleUtility.set('test', { hello: '321' }, 'B');
+		ExampleUtility.set('test', { hello: '456' }, 'C');
+		expect(sessionStorage.length).toBe(3);
+		setTimeout(() => {
+			const result = ExampleUtility.get('test', 'A');
+			expect(sessionStorage.length).toBe(2);
+			expect(result).toBe(null);
+			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
 			done();
 		}, 750);
 	});
 
-	it('should persist long term tier over short term tier after set', (done) => {
+	it('should persist Tier C after Tiers A, B have expired', (done) => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
 		ExampleUtility.set('test', { hello: '321' }, 'B');
-		expect(sessionStorage.length).toBe(2);
+		ExampleUtility.set('test', { hello: '456' }, 'C');
+		expect(sessionStorage.length).toBe(3);
 		setTimeout(() => {
-			ExampleUtility.set('test', { hello: '456' }, 'C');
-			expect(sessionStorage.length).toBe(2);
-			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
+			const result = ExampleUtility.get('test', 'B');
+			expect(result).toBe(null);
+			expect(sessionStorage.length).toBe(1);
 			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
+			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
+			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-test');
 			done();
-		}, 750);
+		}, 1250);
+	});
+
+	it('should remove all tiers if enough inactivity', (done) => {
+		ExampleUtility.set('test', { hello: '123' }, 'A');
+		ExampleUtility.set('test', { hello: '321' }, 'B');
+		ExampleUtility.set('test', { hello: '456' }, 'C');
+		expect(sessionStorage.length).toBe(3);
+		setTimeout(() => {
+			const result = ExampleUtility.get('test', 'C');
+			expect(sessionStorage.length).toBe(0);
+			expect(result).toBe(null);
+			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
+			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
+			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-test');
+			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-test');
+			done();
+		}, 1750);
 	});
 });
