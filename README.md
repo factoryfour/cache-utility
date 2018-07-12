@@ -27,29 +27,29 @@ An instance of storageUtility receives a configuration object in its constructor
 ```
 ### Methods
 ```javascript
-	import storageUtility from 'storageUtility';
+import storageUtility from 'storageUtility';
 
-	const config = {
-		target: 'localStorage',
-		tiers:[
-			{
-				name: 'Tier-1',
-				expiration: 3600000,
-			},
-			{
-				name: 'Tier-2',
-				expiration: 7200000,
-			},
-		],
-	};
+const config = {
+	target: 'localStorage',
+	tiers:[
+		{
+			name: 'Tier-1',
+			expiration: 3600000,
+		},
+		{
+			name: 'Tier-2',
+			expiration: 7200000,
+		},
+	],
+};
 
-	const utility = new storageUtility(config);
+const utility = new storageUtility(config);
 
-	/** To put values in storage, use set */
-	utility('myKey', { myValue: 1 }, 'Tier-1');
+/** To put values in storage, use set */
+utility('myKey', { myValue: 1 }, 'Tier-1');
 
-	/** To retreive value from storage, use get */
-	const result = utility('myKey', 'Tier-1');
+/** To retreive value from storage, use get */
+const result = utility('myKey', 'Tier-1');
 ```
 The storageUtility instance will manage all invalidation of keys within the store.
 
