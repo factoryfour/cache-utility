@@ -57,6 +57,22 @@ describe('StorageUtility', () => {
 		expect(result).toMatchSnapshot();
 	});
 
+	it('should properly remove a value in target', () => {
+		ExampleUtility.set('test', { hello: '123' }, 'A');
+		const result = ExampleUtility.remove('test', 'A');
+		expect(sessionStorage.length).toBe(0);
+		expect(result).toBe(true);
+		expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
+	});
+
+	it('should return null when removing a key from on invalid tier', () => {
+		ExampleUtility.set('test', { hello: '123' }, 'A');
+		const result = ExampleUtility.remove('test', 'D');
+		expect(result).toBe(null);
+		expect(sessionStorage.length).toBe(1);
+		expect(console.error).toHaveBeenCalledWith('Tier D does not exist');
+	});
+
 	it('should return null when getting from an invalid tier', () => {
 		const testValue = { hello: '123' };
 		ExampleUtility.set('test', testValue, 'A');
@@ -99,6 +115,21 @@ describe('StorageUtility', () => {
 			const result = ExampleUtility.get('test', 'A');
 			expect(sessionStorage.length).toBe(3);
 			expect(result).not.toBe(null);
+			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
+			done();
+		}, 250);
+	});
+
+	it('should remove all keys in tiers (but spare those outside)', (done) => {
+		ExampleUtility.set('test', { hello: '123' }, 'A');
+		ExampleUtility.set('test', { hello: '321' }, 'B');
+		ExampleUtility.set('test', { hello: '456' }, 'C');
+		sessionStorage.setItem('another', 'value');
+		expect(sessionStorage.length).toBe(4);
+		setTimeout(() => {
+			const result = ExampleUtility.removeAll();
+			expect(sessionStorage.length).toBe(1);
+			expect(result).not.toBe(true);
 			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
 			done();
 		}, 250);

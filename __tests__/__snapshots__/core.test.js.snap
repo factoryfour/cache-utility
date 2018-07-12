@@ -46,4 +46,10 @@ Object {
 
 exports[`StorageUtility should properly set a value in target 1`] = `"{\\"hello\\":\\"123\\"}"`;
 
+exports[`StorageUtility should remove all keys in tiers (but spare those outside) 1`] = `
+LocalStorage {
+  "another": "value",
+}
+`;
+
 exports[`StorageUtility should remove all tiers if enough inactivity 1`] = `LocalStorage {}`;
