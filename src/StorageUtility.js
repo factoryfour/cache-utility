@@ -29,15 +29,24 @@ class StorageUtility {
 		// Determine the target storage entity on the window
 		this.target = window[config.target];
 		// Store the desired tiers from longest to shortest expiration
-		this.sortedTiers = config.tiers.sort((a, b) => {
-			if (a.expiration < b.expiration) {
-				return 1;
-			}
-			if (a.expiration > b.expiration) {
-				return -1;
-			}
-			return 0;
-		});
+		this.sortedTiers = config.tiers
+			.filter((tier) => {
+				// We don't want any tiers with white space in the name
+				if (tier.name.match(/\s/g)) {
+					console.error(`Invalid tier name "${tier.name}" with whitespace`);
+					return false;
+				}
+				return true;
+			})
+			.sort((a, b) => {
+				if (a.expiration < b.expiration) {
+					return 1;
+				}
+				if (a.expiration > b.expiration) {
+					return -1;
+				}
+				return 0;
+			});
 		/* Now that the tiers are sorted in decreasing expiration, we can
 		generate the map of tier name to key. This key is a concatendated list
 		of all of the tier names that precede the current tier. This allows us

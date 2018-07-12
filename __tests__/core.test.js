@@ -13,6 +13,10 @@ const testTiers = [
 		name: 'C',
 		expiration: 1500,
 	},
+	{
+		name: 'D Tier', // Invalid, should be excluded from tiers
+		expiration: 3000,
+	},
 ];
 
 const config = {
@@ -28,14 +32,15 @@ describe('StorageUtility', () => {
 		sessionStorage.clear();
 		sessionStorage.setItem.mockClear();
 		sessionStorage.removeItem.mockClear();
-		// Reset the ExampleUtility
-		ExampleUtility = new StorageUtility(config);
 		// Make console.error a mock
 		console.error = jest.fn();
+		// Reset the ExampleUtility
+		ExampleUtility = new StorageUtility(config);
 	});
 
 	it('should properly initialize tierMap', () => {
 		expect(ExampleUtility.tierMap).toMatchSnapshot();
+		expect(console.error).toHaveBeenCalledWith('Invalid tier name "D Tier" with whitespace');
 	});
 
 	it('should properly set a value in target', () => {
