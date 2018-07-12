@@ -1,11 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`StorageUtility should persist long term tier over short term tier 1`] = `
-Object {
-  "hello": "321",
-}
-`;
-
 exports[`StorageUtility should persist long term tier over short term tier after get 1`] = `
 Object {
   "hello": "321",

@@ -23,6 +23,7 @@ module.exports = {
 		"window": true,
 		"localStorage": true,
 		"sessionStorage": true,
+		"DOMException": true,
 	},
 	"settings": {
 		"import/ignore": ["config"]
