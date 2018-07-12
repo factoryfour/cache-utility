@@ -13,7 +13,7 @@ Once we determine how we would like this installed, put the details here.
 ## How to Use
 ### Configuration
 An instance of storageUtility receives a configuration object in its constructor. It's structure is defined below:
-```
+```javascript
 {
 	target, // Either 'sessionStorage' or 'localStorage' depending on the desired target
 	tiers: [
@@ -26,7 +26,7 @@ An instance of storageUtility receives a configuration object in its constructor
 }
 ```
 ### Methods
-```
+```javascript
 	import storageUtility from 'storageUtility';
 
 	const config = {
