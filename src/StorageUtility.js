@@ -28,7 +28,7 @@ class StorageUtility {
 		this.lastChange = Date.now();
 		// Determine the target storage entity on the window
 		this.target = window[config.target];
-		// Store the desired tiers
+		// Store the desired tiers from longest to shortest expiration
 		this.sortedTiers = config.tiers.sort((a, b) => {
 			if (a.expiration < b.expiration) {
 				return 1;
@@ -38,8 +38,10 @@ class StorageUtility {
 			}
 			return 0;
 		});
-		/* Now that the tiers are sorted in increasing duration, we can
-		generate the map of tier name to key. */
+		/* Now that the tiers are sorted in decreasing expiration, we can
+		generate the map of tier name to key. This key is a concatendated list
+		of all of the tier names that precede the current tier. This allows us
+		to filter all tiers that should expire given a particular amount of inactivity */
 		this.tierMap = {};
 		this.sortedTiers.forEach((tier, index) => {
 			if (index === 0) {
@@ -134,6 +136,11 @@ class StorageUtility {
 		those tiers */
 		let filter = '';
 
+		/* Here, we generate the filter string, which is a concatenation
+		of tier names starting from the longest to the first tier that will
+		expire given the amount of inactivity. If the tiers are sorted C,B,A from longest
+		to shortest duration and we expect tiers B and A to expire, the filter will be
+		C-B- because only keys within Tiers B and A will include this substring. */
 		const invalid = this.sortedTiers.some((tier) => {
 			if (tier.expiration > inactivity) {
 				filter = filter.concat(`${tier.name}-`);
