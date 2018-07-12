@@ -106,6 +106,28 @@ class StorageUtility {
 		}
 	}
 
+	/** Removes the desired key from the desired tier */
+	remove(key, tier) {
+		if (!this.tierMap[tier]) {
+			console.error(`Tier ${tier} does not exist`);
+			return null;
+		}
+
+		this.target.removeItem(`${this.tierMap[tier].key}-${key}`);
+		return true;
+	}
+
+	/** Removes all keys in the store */
+	removeAll() {
+		// Simply remove all keys that contain the heighest tier
+		const filter = `${this.sortedTiers[0].name}-`;
+		Object.keys(this.target).forEach((key) => {
+			if (key.indexOf(filter) > -1) {
+				this.target.removeItem(key);
+			}
+		});
+	}
+
 	invalidate(inactivity) {
 		/* Based on the amount of inactivity, determine
 		which tiers should be removed and remove all of
