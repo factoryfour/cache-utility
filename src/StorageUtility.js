@@ -24,10 +24,9 @@ class StorageUtility {
 	}
 
 	constructor(config) {
-		// Initialize lastChange as when first constructed
-		this.lastChange = Date.now();
 		// Determine the target storage entity on the window
 		this.target = window[config.target];
+
 		// Store the desired tiers from longest to shortest expiration
 		this.sortedTiers = config.tiers
 			.filter((tier) => {
@@ -65,6 +64,11 @@ class StorageUtility {
 				};
 			}
 		});
+
+		if (this.isAvailable()) {
+			// Invalidate based on existing last-change
+			this.invalidate();
+		}
 	}
 
 	/** Retrieves the associated data from storage */
@@ -75,12 +79,9 @@ class StorageUtility {
 			return null;
 		}
 
-		const now = Date.now();
-		const inactivity = now - this.lastChange;
-		// Update lastChange
-		this.lastChange = now;
+
 		// Initiate the removal of invalid tiers
-		this.invalidate(inactivity);
+		const inactivity = this.invalidate();
 		// If tier is invalid, return null else retrieve
 		return this.tierMap[tier].expiration > inactivity ?
 			JSON.parse(this.target.getItem(`${this.tierMap[tier].key}-${key}`)) : null;
@@ -99,12 +100,8 @@ class StorageUtility {
 		const newValue = JSON.stringify(value);
 		const newKey = `${this.tierMap[tier].key}-${key}`;
 
-		const now = Date.now();
-		const inactivity = now - this.lastChange;
-		// Update lastChange
-		this.lastChange = now;
 		// Initiate the removal of invalid tiers
-		this.invalidate(inactivity);
+		this.invalidate();
 
 		try {
 			this.target.setItem(newKey, newValue);
@@ -125,6 +122,10 @@ class StorageUtility {
 		}
 
 		this.target.removeItem(`${this.tierMap[tier].key}-${key}`);
+
+		// Initiate the removal of invalid tiers
+		this.invalidate();
+
 		return true;
 	}
 
@@ -137,36 +138,51 @@ class StorageUtility {
 				this.target.removeItem(key);
 			}
 		});
+		// Manually reset last-change
+		const now = Date.now();
+		this.target.setItem('last-change', JSON.stringify(now));
 	}
 
-	invalidate(inactivity) {
-		/* Based on the amount of inactivity, determine
-		which tiers should be removed and remove all of
-		those tiers */
-		let filter = '';
+	invalidate() {
+		// Determine the amount of inactivity
+		const now = Date.now();
+		const lastChange = JSON.parse(this.target.getItem('last-change'));
+		let inactivity = null;
+		if (lastChange) {
+			inactivity = now - lastChange;
+			/* Based on the amount of inactivity, determine
+			which tiers should be removed and remove all of
+			those tiers */
+			let filter = '';
 
-		/* Here, we generate the filter string, which is a concatenation
-		of tier names starting from the longest to the first tier that will
-		expire given the amount of inactivity. If the tiers are sorted C,B,A from longest
-		to shortest duration and we expect tiers B and A to expire, the filter will be
-		C-B- because only keys within Tiers B and A will include this substring. */
-		const invalid = this.sortedTiers.some((tier) => {
-			if (tier.expiration > inactivity) {
-				filter = filter.concat(`${tier.name}-`);
-				return false;
-			}
-			filter = filter.concat(`${tier.name}-`);
-			return true;
-		});
-		// If there exists a tier to invalidate, do it
-		if (invalid) {
-			Object.keys(this.target).forEach((key) => {
-				// If filter is present, remove
-				if (key.indexOf(filter) > -1) {
-					this.target.removeItem(key);
+			/* Here, we generate the filter string, which is a concatenation
+			of tier names starting from the longest to the first tier that will
+			expire given the amount of inactivity. If the tiers are sorted C,B,A from longest
+			to shortest duration and we expect tiers B and A to expire, the filter will be
+			C-B- because only keys within Tiers B and A will include this substring. */
+			const invalid = this.sortedTiers.some((tier) => {
+				if (tier.expiration > inactivity) {
+					filter = filter.concat(`${tier.name}-`);
+					return false;
 				}
+				filter = filter.concat(`${tier.name}-`);
+				return true;
 			});
+			// If there exists a tier to invalidate, do it
+			if (invalid) {
+				Object.keys(this.target).forEach((key) => {
+					// If filter is present, remove
+					if (key.indexOf(filter) > -1) {
+						this.target.removeItem(key);
+					}
+				});
+			}
 		}
+
+		// Reset the lastChange
+		this.target.setItem('last-change', JSON.stringify(now));
+		// Return the amount of inactivity
+		return inactivity;
 	}
 
 	// Helper method to determine if both the store exists and has space

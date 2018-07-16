@@ -46,11 +46,11 @@ describe('StorageUtility', () => {
 	it('should properly set a value in target', () => {
 		const testValue = { hello: '123' };
 		expect(localStorage.length).toBe(0);
-		expect(sessionStorage.length).toBe(0);
+		expect(sessionStorage.length).toBe(1);
 		const result = ExampleUtility.set('test', testValue, 'A');
 		expect(result).toBe(true);
 		expect(localStorage.length).toBe(0);
-		expect(sessionStorage.length).toBe(1);
+		expect(sessionStorage.length).toBe(2);
 		expect(sessionStorage.setItem).toHaveBeenCalledWith('C-B-A-test', JSON.stringify(testValue));
 		expect(sessionStorage.__STORE__['C-B-A-test']).toMatchSnapshot(); // eslint-disable-line
 	});
@@ -65,7 +65,7 @@ describe('StorageUtility', () => {
 	it('should properly remove a value in target', () => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
 		const result = ExampleUtility.remove('test', 'A');
-		expect(sessionStorage.length).toBe(0);
+		expect(sessionStorage.length).toBe(1);
 		expect(result).toBe(true);
 		expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
 	});
@@ -74,7 +74,7 @@ describe('StorageUtility', () => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
 		const result = ExampleUtility.remove('test', 'D');
 		expect(result).toBe(null);
-		expect(sessionStorage.length).toBe(1);
+		expect(sessionStorage.length).toBe(2);
 		expect(console.error).toHaveBeenCalledWith('Tier D does not exist');
 	});
 
@@ -105,7 +105,7 @@ describe('StorageUtility', () => {
 		setTimeout(() => {
 			const result = ExampleUtility.get('test', 'A');
 			expect(result).toBe(null);
-			expect(sessionStorage.length).toBe(0);
+			expect(sessionStorage.length).toBe(1);
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
 			done();
 		}, 750);
@@ -115,10 +115,10 @@ describe('StorageUtility', () => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
 		ExampleUtility.set('test', { hello: '321' }, 'B');
 		ExampleUtility.set('test', { hello: '456' }, 'C');
-		expect(sessionStorage.length).toBe(3);
+		expect(sessionStorage.length).toBe(4);
 		setTimeout(() => {
 			const result = ExampleUtility.get('test', 'A');
-			expect(sessionStorage.length).toBe(3);
+			expect(sessionStorage.length).toBe(4);
 			expect(result).not.toBe(null);
 			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
 			done();
@@ -130,10 +130,10 @@ describe('StorageUtility', () => {
 		ExampleUtility.set('test', { hello: '321' }, 'B');
 		ExampleUtility.set('test', { hello: '456' }, 'C');
 		sessionStorage.setItem('another', 'value');
-		expect(sessionStorage.length).toBe(4);
+		expect(sessionStorage.length).toBe(5);
 		setTimeout(() => {
 			const result = ExampleUtility.removeAll();
-			expect(sessionStorage.length).toBe(1);
+			expect(sessionStorage.length).toBe(2);
 			expect(result).not.toBe(true);
 			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
 			done();
@@ -144,10 +144,10 @@ describe('StorageUtility', () => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
 		ExampleUtility.set('test', { hello: '321' }, 'B');
 		ExampleUtility.set('test', { hello: '456' }, 'C');
-		expect(sessionStorage.length).toBe(3);
+		expect(sessionStorage.length).toBe(4);
 		setTimeout(() => {
 			const result = ExampleUtility.get('test', 'A');
-			expect(sessionStorage.length).toBe(2);
+			expect(sessionStorage.length).toBe(3);
 			expect(result).toBe(null);
 			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
@@ -159,11 +159,11 @@ describe('StorageUtility', () => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
 		ExampleUtility.set('test', { hello: '321' }, 'B');
 		ExampleUtility.set('test', { hello: '456' }, 'C');
-		expect(sessionStorage.length).toBe(3);
+		expect(sessionStorage.length).toBe(4);
 		setTimeout(() => {
 			const result = ExampleUtility.get('test', 'B');
 			expect(result).toBe(null);
-			expect(sessionStorage.length).toBe(1);
+			expect(sessionStorage.length).toBe(2);
 			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-test');
@@ -175,10 +175,10 @@ describe('StorageUtility', () => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
 		ExampleUtility.set('test', { hello: '321' }, 'B');
 		ExampleUtility.set('test', { hello: '456' }, 'C');
-		expect(sessionStorage.length).toBe(3);
+		expect(sessionStorage.length).toBe(4);
 		setTimeout(() => {
 			const result = ExampleUtility.get('test', 'C');
-			expect(sessionStorage.length).toBe(0);
+			expect(sessionStorage.length).toBe(1);
 			expect(result).toBe(null);
 			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
