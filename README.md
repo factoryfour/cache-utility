@@ -18,7 +18,7 @@ An instance of storageUtility receives a configuration object in its constructor
 	target, // Either 'sessionStorage' or 'localStorage' depending on the desired target
 	tiers: [
 		{
-			name: 'Name', // Desired name for the tier
+			name: 'Name', // Desired name for the tier, cannot include any whitespace
 			expiration: 5000, // Desired expiration time in ms
 		},
 		...
