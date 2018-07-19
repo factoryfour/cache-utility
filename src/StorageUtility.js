@@ -82,10 +82,12 @@ class StorageUtility {
 		}
 
 		// Initiate the removal of invalid tiers
-		this.invalidate();
-
-		// If this key is in the key map, return it. Else return null
-		return this.keyMap[key] ? JSON.parse(this.target.getItem(this.keyMap[key])) : null;
+		if (this.invalidate()) {
+			// If this key is in the key map, return it. Else return null
+			return this.keyMap[key] ? JSON.parse(this.target.getItem(this.keyMap[key])) : null;
+		}
+		// If invalidation fails, return null
+		return null;
 	}
 
 	/** Puts a desired value into the target store. Returns null if unsuccessful */
@@ -110,22 +112,27 @@ class StorageUtility {
 			console.error('Cannot include tier name in key name');
 			return false;
 		}
-		const newValue = JSON.stringify(value);
-		const newKey = `${this.tierMap[tier].key}-${key}`;
 
 		// Initiate the removal of invalid tiers
-		this.invalidate();
+		if (this.invalidate()) {
+			const newValue = JSON.stringify(value);
+			const newKey = `${this.tierMap[tier].key}-${key}`;
 
-		try {
-			this.target.setItem(newKey, newValue);
-			this.keyMap[key] = newKey; // Update the map of user to target keys
-			// Successful set
-			return true;
-		} catch (e) {
-			// Unsuccessful set
-			console.error(e);
-			return false;
+			try {
+				this.target.setItem(newKey, newValue);
+				this.keyMap[key] = newKey; // Update the map of user to target keys
+				// Successful set
+				return true;
+			} catch (e) {
+				// Unsuccessful set
+				console.error(e);
+				return false;
+			}
 		}
+
+		// If invalidation fails, do not set
+
+		return false;
 	}
 
 	/** Removes the desired key from the desired tier */
@@ -138,21 +145,21 @@ class StorageUtility {
 			return false;
 		}
 
+		// Remove the target
 		this.target.removeItem(this.keyMap[key]);
 		delete this.keyMap[key];
-
-		// Initiate the removal of invalid tiers
+		// Invalidate
 		this.invalidate();
-
 		return true;
 	}
 
 	/** Removes all keys in the store */
 	removeAll() {
-		// If target doesn't exist, return false
+		// If target doesn't exist , return false
 		if (!this.target) {
 			return false;
 		}
+
 
 		// Simply remove all keys that contain the heighest tier
 		const filter = `${this.sortedTiers[0].name}-`;
@@ -162,9 +169,14 @@ class StorageUtility {
 			}
 		});
 		this.keyMap = {};
-		// Manually reset last-change
-		const now = Date.now();
-		this.target.setItem('last-change', JSON.stringify(now));
+
+		try {
+			// Manually reset last-change
+			const now = Date.now();
+			this.target.setItem('last-change', JSON.stringify(now));
+		} catch (e) {
+			console.error(e);
+		}
 
 		return true;
 	}
@@ -173,9 +185,17 @@ class StorageUtility {
 		// Determine the amount of inactivity
 		const now = Date.now();
 		const lastChange = JSON.parse(this.target.getItem('last-change'));
-		let inactivity = null;
+		try {
+			// Attempt to reset the lastChange
+			this.target.setItem('last-change', JSON.stringify(now));
+		} catch (e) {
+			// If this attempt fails, return false and prevent invalidation
+			console.error(e);
+			return false;
+		}
+		// Attempt invalidation if lastChange was updated
 		if (lastChange) {
-			inactivity = now - lastChange;
+			const inactivity = now - lastChange;
 			/* Based on the amount of inactivity, determine
 			which tiers should be removed and remove all of
 			those tiers */
@@ -204,11 +224,7 @@ class StorageUtility {
 				});
 			}
 		}
-
-		// Reset the lastChange
-		this.target.setItem('last-change', JSON.stringify(now));
-		// Return the amount of inactivity
-		return inactivity;
+		return true;
 	}
 
 	// Helper method to determine if both the store exists and has space
