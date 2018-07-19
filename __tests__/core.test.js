@@ -38,6 +38,7 @@ describe('StorageUtility', () => {
 		ExampleUtility = new StorageUtility(config);
 	});
 
+	/* eslint-disable no-underscore-dangle */
 	it('should properly initialize tierMap', () => {
 		expect(ExampleUtility.tierMap).toMatchSnapshot();
 		expect(console.error).toHaveBeenCalledWith('Invalid tier name "D Tier" with whitespace');
@@ -52,7 +53,7 @@ describe('StorageUtility', () => {
 		expect(localStorage.length).toBe(0);
 		expect(sessionStorage.length).toBe(2);
 		expect(sessionStorage.setItem).toHaveBeenCalledWith('C-B-A-test', JSON.stringify(testValue));
-		expect(sessionStorage.__STORE__['C-B-A-test']).toMatchSnapshot(); // eslint-disable-line
+		expect(sessionStorage.__STORE__['C-B-A-test']).toMatchSnapshot();
 	});
 
 	it('should properly get a value in target', () => {
@@ -120,7 +121,9 @@ describe('StorageUtility', () => {
 			const result = ExampleUtility.get('test', 'A');
 			expect(sessionStorage.length).toBe(4);
 			expect(result).not.toBe(null);
-			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
+			expect(sessionStorage.__STORE__['last-change']).toBeTruthy();
+			delete sessionStorage.__STORE__['last-change']; // Because timestamp will ruin snapshot
+			expect(sessionStorage.__STORE__).toMatchSnapshot();
 			done();
 		}, 250);
 	});
@@ -135,7 +138,9 @@ describe('StorageUtility', () => {
 			const result = ExampleUtility.removeAll();
 			expect(sessionStorage.length).toBe(2);
 			expect(result).not.toBe(true);
-			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
+			expect(sessionStorage.__STORE__['last-change']).toBeTruthy();
+			delete sessionStorage.__STORE__['last-change']; // Because timestamp will ruin snapshot
+			expect(sessionStorage.__STORE__).toMatchSnapshot();
 			done();
 		}, 250);
 	});
@@ -149,7 +154,9 @@ describe('StorageUtility', () => {
 			const result = ExampleUtility.get('test', 'A');
 			expect(sessionStorage.length).toBe(3);
 			expect(result).toBe(null);
-			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
+			expect(sessionStorage.__STORE__['last-change']).toBeTruthy();
+			delete sessionStorage.__STORE__['last-change']; // Because timestamp will ruin snapshot
+			expect(sessionStorage.__STORE__).toMatchSnapshot();
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
 			done();
 		}, 750);
@@ -164,7 +171,9 @@ describe('StorageUtility', () => {
 			const result = ExampleUtility.get('test', 'B');
 			expect(result).toBe(null);
 			expect(sessionStorage.length).toBe(2);
-			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
+			expect(sessionStorage.__STORE__['last-change']).toBeTruthy();
+			delete sessionStorage.__STORE__['last-change']; // Because timestamp will ruin snapshot
+			expect(sessionStorage.__STORE__).toMatchSnapshot();
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-test');
 			done();
@@ -180,11 +189,14 @@ describe('StorageUtility', () => {
 			const result = ExampleUtility.get('test', 'C');
 			expect(sessionStorage.length).toBe(1);
 			expect(result).toBe(null);
-			expect(sessionStorage.__STORE__).toMatchSnapshot(); // eslint-disable-line
+			delete sessionStorage.__STORE__['last-change']; // Because timestamp will ruin snapshot
+			expect(sessionStorage.__STORE__).toMatchSnapshot();
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-test');
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-test');
 			done();
 		}, 1750);
 	});
+
+	/* eslint-enable no-underscore-dangle */
 });

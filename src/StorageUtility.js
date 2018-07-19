@@ -172,7 +172,7 @@ class StorageUtility {
 			if (invalid) {
 				Object.keys(this.target).forEach((key) => {
 					// If filter is present, remove
-					if (key.indexOf(filter) > -1) {
+					if (key.slice(0, filter.length) === filter) {
 						this.target.removeItem(key);
 					}
 				});

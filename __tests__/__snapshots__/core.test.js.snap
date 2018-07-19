@@ -3,7 +3,6 @@
 exports[`StorageUtility should persist Tier C after Tiers A, B have expired 1`] = `
 LocalStorage {
   "C-test": "{\\"hello\\":\\"456\\"}",
-  "last-change": "1531764621644",
 }
 `;
 
@@ -11,7 +10,6 @@ exports[`StorageUtility should persist Tiers B, C after Tier A has expired 1`] =
 LocalStorage {
   "C-B-test": "{\\"hello\\":\\"321\\"}",
   "C-test": "{\\"hello\\":\\"456\\"}",
-  "last-change": "1531764620388",
 }
 `;
 
@@ -20,7 +18,6 @@ LocalStorage {
   "C-B-A-test": "{\\"hello\\":\\"123\\"}",
   "C-B-test": "{\\"hello\\":\\"321\\"}",
   "C-test": "{\\"hello\\":\\"456\\"}",
-  "last-change": "1531764619384",
 }
 `;
 
@@ -52,12 +49,7 @@ exports[`StorageUtility should properly set a value in target 1`] = `"{\\"hello\
 exports[`StorageUtility should remove all keys in tiers (but spare those outside) 1`] = `
 LocalStorage {
   "another": "value",
-  "last-change": "1531764619636",
 }
 `;
 
-exports[`StorageUtility should remove all tiers if enough inactivity 1`] = `
-LocalStorage {
-  "last-change": "1531764623401",
-}
-`;
+exports[`StorageUtility should remove all tiers if enough inactivity 1`] = `LocalStorage {}`;
