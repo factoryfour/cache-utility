@@ -2,22 +2,22 @@
 
 exports[`StorageUtility should persist Tier C after Tiers A, B have expired 1`] = `
 LocalStorage {
-  "C-test": "{\\"hello\\":\\"456\\"}",
+  "C-test3": "{\\"hello\\":\\"456\\"}",
 }
 `;
 
 exports[`StorageUtility should persist Tiers B, C after Tier A has expired 1`] = `
 LocalStorage {
-  "C-B-test": "{\\"hello\\":\\"321\\"}",
-  "C-test": "{\\"hello\\":\\"456\\"}",
+  "C-B-test2": "{\\"hello\\":\\"321\\"}",
+  "C-test3": "{\\"hello\\":\\"456\\"}",
 }
 `;
 
 exports[`StorageUtility should persist all tiers if not enough inactivity 1`] = `
 LocalStorage {
   "C-B-A-test": "{\\"hello\\":\\"123\\"}",
-  "C-B-test": "{\\"hello\\":\\"321\\"}",
-  "C-test": "{\\"hello\\":\\"456\\"}",
+  "C-B-test2": "{\\"hello\\":\\"321\\"}",
+  "C-test3": "{\\"hello\\":\\"456\\"}",
 }
 `;
 

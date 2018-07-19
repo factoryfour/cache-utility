@@ -69,33 +69,42 @@ class StorageUtility {
 			// Invalidate based on existing last-change
 			this.invalidate();
 		}
+
+		// Initialize the map of keys the user has added to the store
+		this.keyMap = {};
 	}
 
 	/** Retrieves the associated data from storage */
-	get(key, tier) {
-		// If the desired tier doesn't exist, print a warning to the console
-		if (!this.tierMap[tier]) {
-			console.error(`Tier ${tier} does not exist`);
+	get(key) {
+		// If target is undefined (storage doesn't exist), return null
+		if (!this.target) {
 			return null;
 		}
 
-
 		// Initiate the removal of invalid tiers
-		const inactivity = this.invalidate();
-		// If tier is invalid, return null else retrieve
-		return this.tierMap[tier].expiration > inactivity ?
-			JSON.parse(this.target.getItem(`${this.tierMap[tier].key}-${key}`)) : null;
+		this.invalidate();
+
+		// If this key is in the key map, return it. Else return null
+		return this.keyMap[key] ? JSON.parse(this.target.getItem(this.keyMap[key])) : null;
 	}
 
 	/** Puts a desired value into the target store. Returns null if unsuccessful */
 	set(key, value, tier) {
-		// If the desired tier doesn't exist, print a warning to the console
+		// If the desired tier doesn't exist, print a warning to the console and return false
 		if (!this.tierMap[tier]) {
 			console.error(`Tier ${tier} does not exist`);
-			return null;
+			return false;
 		} else if (!this.isAvailable()) {
-			return null;
+			// If no space is available, return false
+			return false;
+		} else if (this.keyMap[key] && this.keyMap[key] !== `${this.tierMap[tier].key}-${key}`) {
+			/* If the user has supplied a different tier than exists for the current key
+			prevent set and alert the user */
+			console.error(`Cannot set existing key ${key} new tier ${tier}`);
+			return false;
 		}
+
+		// Prevent setting if a tier name is present in the key
 
 		const newValue = JSON.stringify(value);
 		const newKey = `${this.tierMap[tier].key}-${key}`;
@@ -105,6 +114,7 @@ class StorageUtility {
 
 		try {
 			this.target.setItem(newKey, newValue);
+			this.keyMap[key] = newKey; // Update the map of user to target keys
 			// Successful set
 			return true;
 		} catch (e) {
@@ -115,13 +125,17 @@ class StorageUtility {
 	}
 
 	/** Removes the desired key from the desired tier */
-	remove(key, tier) {
-		if (!this.tierMap[tier]) {
-			console.error(`Tier ${tier} does not exist`);
-			return null;
+	remove(key) {
+		// If target doesn't exist, return false
+		if (!this.target) {
+			return false;
+		} else if (!this.keyMap[key]) {
+			// If the key doesn't exist, return false
+			return false;
 		}
 
-		this.target.removeItem(`${this.tierMap[tier].key}-${key}`);
+		this.target.removeItem(this.keyMap[key]);
+		delete this.keyMap[key];
 
 		// Initiate the removal of invalid tiers
 		this.invalidate();
@@ -131,16 +145,24 @@ class StorageUtility {
 
 	/** Removes all keys in the store */
 	removeAll() {
+		// If target doesn't exist, return false
+		if (!this.target) {
+			return false;
+		}
+
 		// Simply remove all keys that contain the heighest tier
 		const filter = `${this.sortedTiers[0].name}-`;
 		Object.keys(this.target).forEach((key) => {
 			if (key.indexOf(filter) > -1) {
 				this.target.removeItem(key);
+				delete this.keyMap[key];
 			}
 		});
 		// Manually reset last-change
 		const now = Date.now();
 		this.target.setItem('last-change', JSON.stringify(now));
+
+		return true;
 	}
 
 	invalidate() {

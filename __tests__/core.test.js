@@ -59,52 +59,54 @@ describe('StorageUtility', () => {
 	it('should properly get a value in target', () => {
 		const testValue = { hello: '123' };
 		ExampleUtility.set('test', testValue, 'A');
-		const result = ExampleUtility.get('test', 'A');
+		const result = ExampleUtility.get('test');
 		expect(result).toMatchSnapshot();
 	});
 
 	it('should properly remove a value in target', () => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
-		const result = ExampleUtility.remove('test', 'A');
+		const result = ExampleUtility.remove('test');
+		const result2 = ExampleUtility.get('test');
+		// This key should be removed from the keyMap
+		expect(ExampleUtility.keyMap.test).toBe(undefined);
 		expect(sessionStorage.length).toBe(1);
 		expect(result).toBe(true);
+		expect(result2).toBe(null); // Getting a previously defined key should return null
 		expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
 	});
 
-	it('should return null when removing a key from on invalid tier', () => {
+	it('should return false when removing a key that doesn\'t exist', () => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
-		const result = ExampleUtility.remove('test', 'D');
-		expect(result).toBe(null);
+		const result = ExampleUtility.remove('test2');
+		expect(result).toBe(false);
 		expect(sessionStorage.length).toBe(2);
-		expect(console.error).toHaveBeenCalledWith('Tier D does not exist');
 	});
 
-	it('should return null when getting from an invalid tier', () => {
+	it('should return null when getting from a key that doesn\'t exist', () => {
 		const testValue = { hello: '123' };
 		ExampleUtility.set('test', testValue, 'A');
-		const result = ExampleUtility.get('test', 'D');
+		const result = ExampleUtility.get('test2');
 		expect(result).toBe(null);
-		expect(console.error).toHaveBeenCalledWith('Tier D does not exist'); // Should alert the user
 	});
 
-	it('should return null when setting to an invalid tier', () => {
+	it('should return false when setting to an invalid tier', () => {
 		const result = ExampleUtility.set('test', { hello: '123' }, 'E');
-		expect(result).toBe(null);
+		expect(result).toBe(false);
 		expect(console.error).toHaveBeenCalledWith('Tier E does not exist'); // Should alert the user
 	});
 
-	it('should return null if getting a key that doesn\'t exist in store', () => {
+	it('should return false when attempting to set an existing key within a new tier', () => {
 		const testValue = { hello: '123' };
 		ExampleUtility.set('test', testValue, 'A');
-		const result = ExampleUtility.get('test', 'B');
-		expect(result).toBe(null);
+		expect(ExampleUtility.set('test', testValue, 'B')).toBe(false);
+		expect(console.error).toHaveBeenCalledWith('Cannot set existing key test new tier B');
 	});
 
 	it('should return null when attempting to get after the tier has expired and remove key from store', (done) => {
 		const testValue = { hello: '123' };
 		ExampleUtility.set('test', testValue, 'A');
 		setTimeout(() => {
-			const result = ExampleUtility.get('test', 'A');
+			const result = ExampleUtility.get('test');
 			expect(result).toBe(null);
 			expect(sessionStorage.length).toBe(1);
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
@@ -114,11 +116,11 @@ describe('StorageUtility', () => {
 
 	it('should persist all tiers if not enough inactivity', (done) => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
-		ExampleUtility.set('test', { hello: '321' }, 'B');
-		ExampleUtility.set('test', { hello: '456' }, 'C');
+		ExampleUtility.set('test2', { hello: '321' }, 'B');
+		ExampleUtility.set('test3', { hello: '456' }, 'C');
 		expect(sessionStorage.length).toBe(4);
 		setTimeout(() => {
-			const result = ExampleUtility.get('test', 'A');
+			const result = ExampleUtility.get('test');
 			expect(sessionStorage.length).toBe(4);
 			expect(result).not.toBe(null);
 			expect(sessionStorage.__STORE__['last-change']).toBeTruthy();
@@ -130,14 +132,13 @@ describe('StorageUtility', () => {
 
 	it('should remove all keys in tiers (but spare those outside)', (done) => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
-		ExampleUtility.set('test', { hello: '321' }, 'B');
-		ExampleUtility.set('test', { hello: '456' }, 'C');
+		ExampleUtility.set('test2', { hello: '321' }, 'B');
+		ExampleUtility.set('test3', { hello: '456' }, 'C');
 		sessionStorage.setItem('another', 'value');
 		expect(sessionStorage.length).toBe(5);
 		setTimeout(() => {
-			const result = ExampleUtility.removeAll();
+			ExampleUtility.removeAll();
 			expect(sessionStorage.length).toBe(2);
-			expect(result).not.toBe(true);
 			expect(sessionStorage.__STORE__['last-change']).toBeTruthy();
 			delete sessionStorage.__STORE__['last-change']; // Because timestamp will ruin snapshot
 			expect(sessionStorage.__STORE__).toMatchSnapshot();
@@ -147,11 +148,11 @@ describe('StorageUtility', () => {
 
 	it('should persist Tiers B, C after Tier A has expired', (done) => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
-		ExampleUtility.set('test', { hello: '321' }, 'B');
-		ExampleUtility.set('test', { hello: '456' }, 'C');
+		ExampleUtility.set('test2', { hello: '321' }, 'B');
+		ExampleUtility.set('test3', { hello: '456' }, 'C');
 		expect(sessionStorage.length).toBe(4);
 		setTimeout(() => {
-			const result = ExampleUtility.get('test', 'A');
+			const result = ExampleUtility.get('test');
 			expect(sessionStorage.length).toBe(3);
 			expect(result).toBe(null);
 			expect(sessionStorage.__STORE__['last-change']).toBeTruthy();
@@ -164,36 +165,36 @@ describe('StorageUtility', () => {
 
 	it('should persist Tier C after Tiers A, B have expired', (done) => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
-		ExampleUtility.set('test', { hello: '321' }, 'B');
-		ExampleUtility.set('test', { hello: '456' }, 'C');
+		ExampleUtility.set('test2', { hello: '321' }, 'B');
+		ExampleUtility.set('test3', { hello: '456' }, 'C');
 		expect(sessionStorage.length).toBe(4);
 		setTimeout(() => {
-			const result = ExampleUtility.get('test', 'B');
+			const result = ExampleUtility.get('test2');
 			expect(result).toBe(null);
 			expect(sessionStorage.length).toBe(2);
 			expect(sessionStorage.__STORE__['last-change']).toBeTruthy();
 			delete sessionStorage.__STORE__['last-change']; // Because timestamp will ruin snapshot
 			expect(sessionStorage.__STORE__).toMatchSnapshot();
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
-			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-test');
+			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-test2');
 			done();
 		}, 1250);
 	});
 
 	it('should remove all tiers if enough inactivity', (done) => {
 		ExampleUtility.set('test', { hello: '123' }, 'A');
-		ExampleUtility.set('test', { hello: '321' }, 'B');
-		ExampleUtility.set('test', { hello: '456' }, 'C');
+		ExampleUtility.set('test2', { hello: '321' }, 'B');
+		ExampleUtility.set('test3', { hello: '456' }, 'C');
 		expect(sessionStorage.length).toBe(4);
 		setTimeout(() => {
-			const result = ExampleUtility.get('test', 'C');
+			const result = ExampleUtility.get('test3');
 			expect(sessionStorage.length).toBe(1);
 			expect(result).toBe(null);
 			delete sessionStorage.__STORE__['last-change']; // Because timestamp will ruin snapshot
 			expect(sessionStorage.__STORE__).toMatchSnapshot();
 			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-A-test');
-			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-test');
-			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-test');
+			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-B-test2');
+			expect(sessionStorage.removeItem).toHaveBeenCalledWith('C-test3');
 			done();
 		}, 1750);
 	});
