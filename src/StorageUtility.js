@@ -105,7 +105,11 @@ class StorageUtility {
 		}
 
 		// Prevent setting if a tier name is present in the key
-
+		const invalidKeyName = this.sortedTiers.some(t => key.indexOf(t.name) > -1);
+		if (invalidKeyName) {
+			console.error('Cannot include tier name in key name');
+			return false;
+		}
 		const newValue = JSON.stringify(value);
 		const newKey = `${this.tierMap[tier].key}-${key}`;
 

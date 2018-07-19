@@ -102,6 +102,12 @@ describe('StorageUtility', () => {
 		expect(console.error).toHaveBeenCalledWith('Cannot set existing key test new tier B');
 	});
 
+	it('should return false when attempting to set a key with a tier name included', () => {
+		const testValue = { hello: '123' };
+		expect(ExampleUtility.set('testA', testValue, 'B')).toBe(false);
+		expect(console.error).toHaveBeenCalledWith('Cannot include tier name in key name');
+	});
+
 	it('should return null when attempting to get after the tier has expired and remove key from store', (done) => {
 		const testValue = { hello: '123' };
 		ExampleUtility.set('test', testValue, 'A');
