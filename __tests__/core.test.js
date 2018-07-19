@@ -145,6 +145,8 @@ describe('StorageUtility', () => {
 		setTimeout(() => {
 			ExampleUtility.removeAll();
 			expect(sessionStorage.length).toBe(2);
+			// Remove all keys in the keyMap
+			expect(Object.keys(ExampleUtility.keyMap).length).toBe(0);
 			expect(sessionStorage.__STORE__['last-change']).toBeTruthy();
 			delete sessionStorage.__STORE__['last-change']; // Because timestamp will ruin snapshot
 			expect(sessionStorage.__STORE__).toMatchSnapshot();

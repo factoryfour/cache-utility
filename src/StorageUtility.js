@@ -159,9 +159,9 @@ class StorageUtility {
 		Object.keys(this.target).forEach((key) => {
 			if (key.indexOf(filter) > -1) {
 				this.target.removeItem(key);
-				delete this.keyMap[key];
 			}
 		});
+		this.keyMap = {};
 		// Manually reset last-change
 		const now = Date.now();
 		this.target.setItem('last-change', JSON.stringify(now));
