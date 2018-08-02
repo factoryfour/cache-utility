@@ -1,3 +1,3 @@
-import StorageUtility from './src/StorageUtility';
+import CacheUtility from './src/CacheUtility';
 
-export default StorageUtility;
+export default CacheUtility;

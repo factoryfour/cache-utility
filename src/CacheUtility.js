@@ -1,4 +1,4 @@
-class StorageUtility {
+class CacheUtility {
 	static isAvailable(type) {
 		// Helper method to determine if both the store exists and has space
 		const storage = window[type];
@@ -251,4 +251,4 @@ class StorageUtility {
 	}
 }
 
-export default StorageUtility;
+export default CacheUtility;

@@ -1,4 +1,4 @@
-import StorageUtility from '../index';
+import CacheUtility from '../index';
 
 const testTiers = [
 	{
@@ -35,7 +35,7 @@ describe('StorageUtility', () => {
 		// Make console.error a mock
 		console.error = jest.fn();
 		// Reset the ExampleUtility
-		ExampleUtility = new StorageUtility(config);
+		ExampleUtility = new CacheUtility(config);
 	});
 
 	/* eslint-disable no-underscore-dangle */
