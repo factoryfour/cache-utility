@@ -1,5 +1,5 @@
 {
-  "name": "storageutility",
+  "name": "cache-utility",
   "version": "1.0.0",
   "description": "A wrapper around localStorage to permit tier-based management of data.",
   "main": "index.js",
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/factoryfour/storageUtility.git"
   },
   "author": "Doran Walsten",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/factoryfour/storageUtility/issues"
   },
