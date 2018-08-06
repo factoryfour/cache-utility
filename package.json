@@ -4,6 +4,7 @@
   "description": "A wrapper around localStorage to permit tier-based management of data.",
   "main": "index.js",
   "scripts": {
+    "clean": "rm -rf node_modules && npm install",
     "build": "webpack -p --config=./build/webpack.config.js",
     "lint": "eslint . --ext .jsx --ext js",
     "test": "jest"
