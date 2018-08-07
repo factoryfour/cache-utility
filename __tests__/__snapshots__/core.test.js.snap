@@ -1,19 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`StorageUtility should persist Tier C after Tiers A, B have expired 1`] = `
+exports[`CacheUtility should persist Tier C after Tiers A, B have expired 1`] = `
 LocalStorage {
   "C-test3": "{\\"hello\\":\\"456\\"}",
 }
 `;
 
-exports[`StorageUtility should persist Tiers B, C after Tier A has expired 1`] = `
+exports[`CacheUtility should persist Tiers B, C after Tier A has expired 1`] = `
 LocalStorage {
   "C-B-test2": "{\\"hello\\":\\"321\\"}",
   "C-test3": "{\\"hello\\":\\"456\\"}",
 }
 `;
 
-exports[`StorageUtility should persist all tiers if not enough inactivity 1`] = `
+exports[`CacheUtility should persist all tiers if not enough inactivity 1`] = `
 LocalStorage {
   "C-B-A-test": "{\\"hello\\":\\"123\\"}",
   "C-B-test2": "{\\"hello\\":\\"321\\"}",
@@ -21,13 +21,13 @@ LocalStorage {
 }
 `;
 
-exports[`StorageUtility should properly get a value in target 1`] = `
+exports[`CacheUtility should properly get a value in target 1`] = `
 Object {
   "hello": "123",
 }
 `;
 
-exports[`StorageUtility should properly initialize tierMap 1`] = `
+exports[`CacheUtility should properly initialize tierMap 1`] = `
 Object {
   "A": Object {
     "expiration": 500,
@@ -44,12 +44,12 @@ Object {
 }
 `;
 
-exports[`StorageUtility should properly set a value in target 1`] = `"{\\"hello\\":\\"123\\"}"`;
+exports[`CacheUtility should properly set a value in target 1`] = `"{\\"hello\\":\\"123\\"}"`;
 
-exports[`StorageUtility should remove all keys in tiers (but spare those outside) 1`] = `
+exports[`CacheUtility should remove all keys in tiers (but spare those outside) 1`] = `
 LocalStorage {
   "another": "value",
 }
 `;
 
-exports[`StorageUtility should remove all tiers if enough inactivity 1`] = `LocalStorage {}`;
+exports[`CacheUtility should remove all tiers if enough inactivity 1`] = `LocalStorage {}`;
