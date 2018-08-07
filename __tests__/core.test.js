@@ -24,7 +24,7 @@ const config = {
 	tiers: testTiers,
 };
 
-describe('StorageUtility', () => {
+describe('CacheUtility', () => {
 	let ExampleUtility;
 
 	beforeEach(() => {
