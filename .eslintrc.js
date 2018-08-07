@@ -21,6 +21,9 @@ module.exports = {
 		"navigator": true,
 		"VERSION": true,
 		"window": true,
+		"localStorage": true,
+		"sessionStorage": true,
+		"DOMException": true,
 	},
 	"settings": {
 		"import/ignore": ["config"]

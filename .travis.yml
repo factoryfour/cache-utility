@@ -1,0 +1,42 @@
+sudo: required
+dist: trusty
+
+language: node_js
+node_js:
+  - 6
+env:
+  -TZ="America/New_York"
+# Check versioning immediately before doing anything else
+before_install:
+  - echo 'EXISTING TAGS' && git tag
+  - 'export VERSION=v$(node -p "require(\"./package.json\").version")'
+  - echo CURRENT VERSION ${VERSION}
+  - "if [ -z ${TRAVIS_TAG} ]; then if [ -z `git tag | awk -v env_var=${VERSION}  -F: '$1==env_var {print $1}'` ]; then echo 'Build is a new tag';else echo 'BUILD IS AN OLD TAG! UPDATE PACKAGE VERSION' && exit 1;fi;else if [ $TRAVIS_TAG = $VERSION ]; then echo 'Tags match'; else echo 'ERROR TAG VERSION DOES NOT MATCH PACKAGE VERSION' && exit 1; fi;fi;" 
+  - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+  - npm i -g npm@5.3.0
+
+# Check linting and build
+before_script:
+  - npm run lint
+
+after_success:
+  - npm run build
+
+# Deploy to npm if a tagged release
+deploy:
+  - provider: npm
+    email: "travis@factoryfour.com"
+    api_key: $NPM_TOKEN
+    skip_cleanup: true
+    on:
+      tags: true
+
+# Only build on master and versioned tags
+branches:
+  only:
+  - master
+  - "/^v([0-9.]+)$/"
+
+notifications:
+  email: false
+  slack: factoryfour:0Dd0PQIitvPR7u0ANXvmBfmT#frontend-builds

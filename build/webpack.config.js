@@ -5,7 +5,7 @@ const nodeExternals = require('webpack-node-externals');
 module.exports = {
 	entry: './index.js',
 	output: {
-		filename: './dist/storageUtility.js',
+		filename: './dist/cache-utility.js',
 		libraryTarget: 'umd',
 	},
 	externals: [nodeExternals()],
