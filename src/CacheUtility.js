@@ -24,6 +24,7 @@ class CacheUtility {
 	}
 
 	constructor(config) {
+		this.config = config;
 		// Determine the target storage entity on the window
 		this.target = window[config.target];
 
@@ -229,25 +230,7 @@ class CacheUtility {
 
 	// Helper method to determine if both the store exists and has space
 	isAvailable() {
-		try {
-			const x = '__storage_test__';
-			this.target.setItem(x, x);
-			this.target.removeItem(x);
-			return true;
-		} catch (e) {
-			return e instanceof DOMException && (
-				// everything except Firefox
-				e.code === 22 ||
-				// Firefox
-				e.code === 1014 ||
-				// test name field too, because code might not be present
-				// everything except Firefox
-				e.name === 'QuotaExceededError' ||
-				// Firefox
-				e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
-				// acknowledge QuotaExceededError only if there's something already stored
-				this.target.length !== 0;
-		}
+		return CacheUtility.isAvailable(this.config.target);
 	}
 }
 
