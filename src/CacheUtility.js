@@ -1,8 +1,9 @@
 class CacheUtility {
 	static isAvailable(type) {
 		// Helper method to determine if both the store exists and has space
+		let storage = [];
 		try {
-			const storage = window[type];
+			storage = window[type];
 			const x = '__storage_test__';
 			storage.setItem(x, x);
 			storage.removeItem(x);
@@ -26,7 +27,10 @@ class CacheUtility {
 	constructor(config) {
 		this.config = config;
 		// Determine the target storage entity on the window
-		this.target = window[config.target];
+		this.target = null;
+		if (CacheUtility.isAvailable(config.target)) {
+			this.target = window[config.target];
+		}
 
 		// Store the desired tiers from longest to shortest expiration
 		this.sortedTiers = config.tiers
